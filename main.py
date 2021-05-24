@@ -1,6 +1,45 @@
+""" #how to save dictionary to file
+def write_dictionary(dict):
+    file = open("dict.txt", "w")
+    for x in dict:
+        file.write("{} {}\n".format(x, dict[x]))
+    file.close()
+"""
+""" #how to read dictionary from file
+def  read_dictionary():
+    dict = {}
+    if (os.stat('dict.txt').st_size == 0):
+        print("empty")
+        return dict
+    with open("dict.txt") as file:
+        for line in file:
+            (key, value) = line.split()
+            dict[str(key)] = value
+    file.close()
+    return dict
+"""
+""" #how to save list to file
+def write_list(lst):
+    file = open("lst.txt", "w")
+    for x in lst:
+        file.write(x)
+        file.write("\n")
+    file.close()
+"""
+""" how to read list from file
+def read_list():  
+    lst = []
+    with open("lst.txt") as file:
+        for line in file:
+            line.strip()
+            lst.append(line.replace("\n", ""))
+    file.close()
+    return lst
+"""
+
 def main():
-    loaded_list = {
-        'Bread' : 2, #quantity, scrubbed -> price, x, y, z
+    loaded_list = { #dict of actual shopping list
+        'Bread' : 2,
         'Ice Cream' : 8,
         'Pepsi' : 1
     }
@@ -13,7 +52,7 @@ def main():
         'Water' : "Drinks",
         'Pepsi' : "Drinks"            
     }
-    product_list = {
+    product_list = { #dict of avaible predefined products
         'Bread' : 4.1,
         'Water' : 2.5,
         'White Cheese' : 7.6,
@@ -25,6 +64,9 @@ def main():
         'Orange Juice' : 5.5,
         'Ice Cream' : 3.2
     }  
+    file = open("test.txt","r")
+    print(file.read())
+    file.close
     while(1):
         
         loaded_list, product_list = selection_shopping_list(loaded_list, product_list)
