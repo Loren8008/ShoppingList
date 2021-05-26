@@ -1,50 +1,14 @@
-""" #how to save dictionary to file
-def write_dictionary(dict):
-    file = open("dict.txt", "w")
-    for x in dict:
-        file.write("{} {}\n".format(x, dict[x]))
-    file.close()
-"""
-""" #how to read dictionary from file
-def  read_dictionary():
-    dict = {}
-    if (os.stat('dict.txt').st_size == 0):
-        print("empty")
-        return dict
-    with open("dict.txt") as file:
-        for line in file:
-            (key, value) = line.split()
-            dict[str(key)] = value
-    file.close()
-    return dict
-"""
-""" #how to save list to file
-def write_list(lst):
-    file = open("lst.txt", "w")
-    for x in lst:
-        file.write(x)
-        file.write("\n")
-    file.close()
-"""
-""" how to read list from file
-def read_list():  
-    lst = []
-    with open("lst.txt") as file:
-        for line in file:
-            line.strip()
-            lst.append(line.replace("\n", ""))
-    file.close()
-    return lst
-"""
 
 import os
+import pickle
 
+
+     
+    
 def main():
-    loaded_list = {  # dict of actual shopping list
-        'Bread': 2,
-        'Ice Cream': 8,
-        'Pepsi': 1
-    }
+    loaded_list_name = check_latest_name()
+    loaded_list = load_shopping_list(loaded_list_name)
+   
     types_list = {
         'Bread': "Pastries",
         'White Cheese': "Dairy",
@@ -57,18 +21,51 @@ def main():
     product_list = {  # dict of avaible predefined products
         'Bread': 4.1,
         'Water': 2.5,
-        'White Cheese': 7.6,
-        'Yellow Cheese': 4.2,
+        'WhiteCheese': 7.6,
+        'YellowCheese': 4.2,
         'Milk': 5.3,
         'Butter': 3,
         'Pepsi': 7.8,
         'Chocolate': 4.5,
         'Orange Juice': 5.5,
-        'Ice Cream': 3.2
+        'IceCream': 3.2
     }
     while 1:
-        loaded_list, product_list = selection_shopping_list(loaded_list, product_list)
+        loaded_list, product_list, loaded_list_name = selection_shopping_list(loaded_list, product_list, loaded_list_name)
 
+def save_lst_name(loaded_list_name):
+    file = open("last_lst.txt", "w")
+    file.write("{} \n".format(loaded_list_name))
+    file.close()
+    
+def save_shopping_list(loaded_list, loaded_list_name):
+    file = open(loaded_list_name, "w")
+    for x in loaded_list:
+        file.write("{} {}\n".format(x, loaded_list[x]))
+    file.close()
+      
+
+def check_latest_name():
+    file = open("last_lst.txt", "r")
+    lastest_name = file.read()
+    return lastest_name
+    file.close()
+    
+    
+ 
+def load_shopping_list(list_to_load):
+    loaded_list = {}
+    if (os.stat(list_to_load).st_size == 0):
+        print("empty")
+        list_to_load.close()
+        return loaded_list
+    print(list_to_load)
+    with open(list_to_load, "r") as file:
+        for line in file:
+            key, value = line.split()
+            loaded_list[key]=int(value)
+    file.close()
+    return loaded_list
 
 def modify_selected(loaded_list, selected_product):
     quantity = (int(input("insert product quantity\n")))
@@ -153,7 +150,7 @@ def selection_add_or_remove():
         remove_list(list_to_remove)
 
 
-def selection_shopping_list(loaded_list, product_list):
+def selection_shopping_list(loaded_list, product_list, loaded_list_name):
     shopping_list_menu = ["1: Change current list", "2: Add/remove list", "3: Edit list", "4: Print list",
                           "5: Go back\n"]
     for item in shopping_list_menu:
@@ -175,12 +172,13 @@ def selection_shopping_list(loaded_list, product_list):
         input()
     elif "5" == user_choice:
         clear()
+        save_lst_name(loaded_list_name)
         print("Bye")
         exit()
     else:
         clear()
         print("bruhx2\n")
-    return loaded_list, product_list
+    return loaded_list, product_list, loaded_list_name
 
 
 def selection_shopping_list_edit(loaded_list, product_list):
