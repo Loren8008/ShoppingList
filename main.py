@@ -117,37 +117,48 @@ def sum_price_list(list_to_sum, product_list):
 
 def remove_list(file_name):
     try:
+        os.chdir("./Lists")
         os.remove("{}.txt".format(file_name))
+        os.chdir("..")
+        loaded_list = {}
+        return loaded_list
     except IOError:
-        print("File doesn't exist")
-    loaded_list = {}
-    return loaded_list
+        print("File doesn't exist\n")
+        os.chdir("..")
 
 
 def add_list(file_name):
     try:
+        os.chdir("./Lists")
         open("{}.txt".format(file_name), "x")
+        loaded_list = {}
+        os.chdir("..")
     except IOError:
         print("A file with that name already exist")
-    loaded_list = {}
-    return loaded_list, file_name
+        os.chdir("..")
 
 
-def selection_add_or_remove():
-    add_or_remove_menu = ["1. Add", "2. Remove\n"]
+def selection_add_or_remove(loaded_list, product_list):
+    add_or_remove_menu = ["1. Add", "2. Remove", "3. Go back\n"]
 
     for elem in add_or_remove_menu:
         print(elem)
     user_choice = input("select option ")
     if user_choice == "1":
         clear()
+        print("Existing files: ", os.listdir("Lists"))
         list_to_add = input("Type name of list to add: \n")
         add_list(list_to_add)
 
     elif user_choice == "2":
         clear()
+        print("Existing files: ", os.listdir("Lists"))
         list_to_remove = input("Type name of list to remove: \n")
         remove_list(list_to_remove)
+
+    elif user_choice == "3":
+        clear()
+        selection_shopping_list(loaded_list, product_list)
 
 
 def selection_shopping_list(loaded_list, product_list, loaded_list_name):
@@ -161,14 +172,14 @@ def selection_shopping_list(loaded_list, product_list, loaded_list_name):
         print("bruh\n")
     elif "2" == user_choice:
         clear()
-        selection_add_or_remove()
+        selection_add_or_remove(loaded_list, product_list)
     elif "3" == user_choice:
         clear()
         selection_shopping_list_edit(loaded_list, product_list)
     elif "4" == user_choice:
         clear()
         prt_pos(loaded_list)
-        print("Summed products cost:", sum_price_list(loaded_list, product_list))
+        print("Summed products cost: {:.2f}".format(sum_price_list(loaded_list, product_list)))
         input()
     elif "5" == user_choice:
         clear()
