@@ -1,0 +1,10 @@
+Bread 4.1
+Water 2.5
+WhiteCheese 7.6
+YellowCheese 4.2
+Milk 2.0
+Butter 3.0
+Pepsi 7.8
+Chocolate 4.5
+OrangeJuice 5.5
+IceCream 3.2

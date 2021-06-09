@@ -7,30 +7,26 @@ def main():
     loaded_list_name = check_latest_name()
     loaded_list = load_shopping_list(loaded_list_name)
 
-    types_list = {
-        'Bread': "Pastries",
-        'White Cheese': "Dairy",
-        'Yellow Cheese': "Dairy",
-        'Milk': "Dairy",
-        'Butter': "Dairy",
-        'Water': "Drinks",
-        'Pepsi': "Drinks"
-    }
-    product_list = {  # dict of avaible predefined products
-        'Bread': 4.1,
-        'Water': 2.5,
-        'WhiteCheese': 7.6,
-        'YellowCheese': 4.2,
-        'Milk': 5.3,
-        'Butter': 3,
-        'Pepsi': 7.8,
-        'Chocolate': 4.5,
-        'Orange Juice': 5.5,
-        'IceCream': 3.2
-    }
+    types_list, product_list = load_from_file()
+
     while 1:
-        loaded_list, product_list, loaded_list_name, types_list = selection_shopping_list(loaded_list, product_list,
-                                                                                          loaded_list_name, types_list)
+        loaded_list, product_list, loaded_list_name, types_list = selection_shopping_list(loaded_list, product_list, loaded_list_name, types_list)
+
+
+def save_to_file(product_list, types_list):
+    file = open("product_list.txt", "w")
+    for x in product_list:
+        file.write("{} {}\n".format(x, product_list[x]))
+    file.close()
+    file = open("types_list.txt", "w")
+    for x in types_list:
+        file.write("{} {}\n".format(x, types_list[x]))
+    file.close()
+
+
+def print_types_category(types_list):
+    for elem, value in types_list.items():
+        print(elem + ": " + str(value))
 
 
 def add_product_to_product_list(product_list, product, value):
@@ -57,22 +53,21 @@ def add_new_type(type, types_list, new_product):
     return types_list
 
 
-def edit_types_list(types_list, product):
-    types_list[product] = input("Enter type of the product: ")
+def edit_types_list(types_list, product, type):
+    types_list[product] = type
     return types_list
 
 
 def change_list(loaded_list_name):
     print("Change list from: ", loaded_list_name)
-    print("Existing files: ")
+    print("Existing lists: ")
     lists = print_files("Lists")
     lst = input()
     if (not lst or lst == "\n") or ((lst + ".txt") not in os.listdir("Lists")):
         print("Incorrect list name")
-        print(lst)
         return loaded_list_name, load_shopping_list(loaded_list_name)
     file = open("last_lst.txt", "w")
-    file.writelines(lst + ".txt")
+    file.write(lst + ".txt")
     file.close()
     return "{}.txt".format(lst), load_shopping_list("{}.txt".format(lst))
 
@@ -114,6 +109,28 @@ def check_latest_name():
         file.close()
         print("Loaded list is: ", lastest_name)
     return lastest_name
+
+
+def load_from_file():
+    if "product_list.txt" not in os.listdir():
+        print("ERROR: product_list.txt does not exist")
+        return exit(-1)
+    if "types_list.txt" not in os.listdir():
+        print("ERROR: types_list.txt does not exist")
+        return exit(-2)
+    types_list = {}
+    product_list = {}
+    with open("types_list.txt", "r") as file:
+        for line in file:
+            key, value = line.split()
+            types_list[key] = str(value)
+    file.close()
+    with open("product_list.txt", "r") as file:
+        for line in file:
+            key, value = line.split()
+            product_list[key] = float(value)
+    file.close()
+    return types_list, product_list
 
 
 def load_shopping_list(list_to_load):
@@ -220,6 +237,42 @@ def add_list(file_name):
         os.chdir("..")
 
 
+def selection_types_products_edit(product_list, types_list):
+    add_or_remove_product = ["1. Add product to product list", "2. Edit product on product list", "3. Print existing types", "4. Go back \n"]
+
+    while 1:
+        for elem in add_or_remove_product:
+            print(elem)
+        user_choice = input("select option ")
+        if user_choice == "1":
+            clear()
+            product_to_add = input("Type name of product to add: \n")
+            value = float(input("Enter price of the product: "))
+            product_list = add_product_to_product_list(product_list, product_to_add, value)
+            type = input("Enter type of the product: ")
+            types_list = add_new_type(type, types_list, product_to_add)
+        elif user_choice == "2":
+            clear()
+            product_to_modify = input("Type name of product to edit: ")
+            value = input("Enter new price of the product or ENTER to skip: ")
+            if len(value) != 0:
+                product_list = edit_product_list(product_list, product_to_modify, float(value))
+            type = input("Enter new type of the product or ENTER to skip: ")
+            if len(type) != 0:
+                types_list = edit_types_list(types_list, product_to_modify, type)
+        elif user_choice == "3":
+            clear()
+            print("Existing products:")
+            print_types_category(types_list)
+            print("\nPrices are:")
+            print_types_category(product_list)
+            print("\n")
+        elif user_choice == "4":
+            clear()
+            return types_list, product_list
+        save_to_file(product_list, types_list)
+
+
 def selection_add_or_remove(loaded_list, product_list, types_list):
     add_or_remove_menu = ["1. Add", "2. Remove", "3. Go back\n"]
 
@@ -240,6 +293,8 @@ def selection_add_or_remove(loaded_list, product_list, types_list):
             print_files("Lists")
             list_to_remove = input("Type name of list to remove: \n")
             remove_list(list_to_remove)
+            clear()
+            print("Removed list: " + list_to_remove)
 
         elif user_choice == "3":
             clear()
@@ -247,8 +302,8 @@ def selection_add_or_remove(loaded_list, product_list, types_list):
 
 
 def selection_shopping_list(loaded_list, product_list, loaded_list_name, types_list):
-    shopping_list_menu = ["1: Change current list (" + loaded_list_name.replace(".txt", "") + ")", "2: Add/remove list", "3: Edit list", "4: Print list",
-                          "5: Exit\n"]
+    shopping_list_menu = ["1: Change current list (" + loaded_list_name.replace(".txt", "") + ")", "2: Add/remove list", "3: Edit list", "4: Print list", "5. Edit types/products",
+                          "6: Exit\n"]
     for item in shopping_list_menu:
         print(item)
     user_choice = (input("select option "))
@@ -267,6 +322,8 @@ def selection_shopping_list(loaded_list, product_list, loaded_list_name, types_l
         print("Summed products cost: {:.2f}".format(sum_price_list(loaded_list, product_list)))
         input()
     elif "5" == user_choice:
+        types_list, product_list = selection_types_products_edit(product_list, types_list)
+    elif "6" == user_choice:
         clear()
         save_lst_name(loaded_list_name)
         print("Bye")
@@ -277,8 +334,8 @@ def selection_shopping_list(loaded_list, product_list, loaded_list_name, types_l
 
 
 def selection_shopping_list_edit(loaded_list, product_list, types_list, loaded_list_name):
-    shopping_list_edit_menu = ["enter position: Modify selected", "R: Remove", "B: Go back", "S: Sum up product prices",
-                               "SB: Sum up product prices by category\n"]
+    shopping_list_edit_menu = ["enter position: Modify selected", "R: Remove", "P: Print category", "S: Sum up product prices",
+                               "SB: Sum up product prices by category", "B: Go back\n"]
     if not loaded_list_name:
         temp = input("Enter list name: \n")
         while not temp:
@@ -307,7 +364,14 @@ def selection_shopping_list_edit(loaded_list, product_list, types_list, loaded_l
                 sorted_loaded_list = sort_list_by_category(loaded_list, types_list)
                 print(sum_price_list(sorted_loaded_list, product_list))
             elif user_choice == "B":
-                return loaded_list
+                return loaded_list, product_list, types_list, loaded_list_name
+            elif user_choice == "P":
+                clear()
+                print("Existing products:")
+                print_types_category(types_list)
+                print("\nPrices are:")
+                print_types_category(product_list)
+                print("\n")
             else:
                 loaded_list, product_list, tyepes_list= add_new(loaded_list, product_list, user_choice, types_list)
 
