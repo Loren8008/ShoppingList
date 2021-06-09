@@ -160,7 +160,7 @@ def sort_list_by_category(loaded_list, types_list):
         if key in types_list.keys():
             if types_list[key] == category:
                 sorted_list[key] = loaded_list[key]
-    print(sorted_list)
+    print_types_category(sorted_list)
     return sorted_list
 
 
